@@ -44,20 +44,43 @@ namespace Microsoft.Azure.Commands.RecoveryServices.SiteRecovery.Test.ScenarioTe
         {
             this.vaultSettingsFilePath = Path.Combine(
                 AppDomain.CurrentDomain.BaseDirectory,
-                "ScenarioTests\\vaultSettings.VaultCredentials");
+                "ScenarioTests\\vaultSettings2.VaultCredentials");
 
             if (File.Exists(this.vaultSettingsFilePath))
             {
                 try
                 {
-                    var serializer1 = new DataContractSerializer(typeof(ASRVaultCreds));
-                    using (var s = new FileStream(
-                        this.vaultSettingsFilePath,
-                        FileMode.Open,
-                        FileAccess.Read,
-                        FileShare.Read))
+                    if (File.ReadAllText(this.vaultSettingsFilePath).ToLower().Contains("<asrvaultcreds"))
                     {
-                        this.asrVaultCreds = (ASRVaultCreds)serializer1.ReadObject(s);
+                        var serializer1 = new DataContractSerializer(typeof(ASRVaultCreds));
+                        using (var s = new FileStream(
+                            this.vaultSettingsFilePath,
+                            FileMode.Open,
+                            FileAccess.Read,
+                            FileShare.Read))
+                        {
+                            this.asrVaultCreds = (ASRVaultCreds)serializer1.ReadObject(s);
+                        }
+                    }
+                    else
+                    {
+                        var serializer = new DataContractSerializer(typeof(RSVaultAsrCreds));
+                        using (var s = new FileStream(
+                            this.vaultSettingsFilePath,
+                            FileMode.Open,
+                            FileAccess.Read,
+                            FileShare.Read))
+                        {
+                            RSVaultAsrCreds aadCreds = (RSVaultAsrCreds)serializer.ReadObject(s);
+                            asrVaultCreds = new ASRVaultCreds();
+                            asrVaultCreds.ChannelIntegrityKey = aadCreds.ChannelIntegrityKey;
+                            asrVaultCreds.ResourceGroupName = aadCreds.VaultDetails.ResourceGroup;
+                            asrVaultCreds.Version = "2.0";
+                            asrVaultCreds.SiteId = aadCreds.SiteId;
+                            asrVaultCreds.SiteName = aadCreds.SiteName;
+                            asrVaultCreds.ResourceNamespace = aadCreds.VaultDetails.ProviderNamespace;
+                            asrVaultCreds.ARMResourceType = aadCreds.VaultDetails.ResourceType;
+                        }
                     }
                 }
                 catch (XmlException xmlException)
@@ -276,5 +299,133 @@ namespace Microsoft.Azure.Commands.RecoveryServices.SiteRecovery.Test.ScenarioTe
         {
             return true;
         }
+    }
+
+    [DataContract]
+    public class ASRVaultDetails
+    {
+        /// <summary>
+        /// Gets or sets the values for SubscriptionId.
+        /// </summary>
+        [DataMember(Order = 0)]
+        public string SubscriptionId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the values for ResourceGroup.
+        /// </summary>
+        [DataMember(Order = 1)]
+        public string ResourceGroup { get; set; }
+
+        /// <summary>
+        /// Gets or sets the values for ResourceName.
+        /// </summary>
+        [DataMember(Order = 2)]
+        public string ResourceName { get; set; }
+
+        /// <summary>
+        /// Gets or sets the values for ResourceId.
+        /// </summary>
+        [DataMember(Order = 3)]
+        public string ResourceId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the values for Location.
+        /// </summary>
+        [DataMember(Order = 4)]
+        public string Location { get; set; }
+
+        /// <summary>
+        /// Gets or sets the values for ResourceType.
+        /// </summary>
+        [DataMember(Order = 5)]
+        public string ResourceType { get; set; }
+
+        /// <summary>
+        /// Gets or sets the values for ProviderNamespace.
+        /// </summary>
+        [DataMember(Order = 6)]
+        public string ProviderNamespace { get; set; }
+
+    }
+
+    [DataContract]
+    public class ASRVaultAadDetails
+    {
+        /// <summary>
+        /// Gets or sets the values for AadDetails.
+        /// </summary>
+        [DataMember(Order = 0)]
+        public string AadDetails { get; set; }
+
+        /// <summary>
+        /// Gets or sets the values for AadAuthority.
+        /// </summary>
+        [DataMember(Order = 1)]
+        public string AadAuthority { get; set; }
+
+        /// <summary>
+        /// Gets or sets the values for AadTenantId.
+        /// </summary>
+        [DataMember(Order = 2)]
+        public string AadTenantId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the values for ServicePrincipalClientId.
+        /// </summary>
+        [DataMember(Order = 3)]
+        public string ServicePrincipalClientId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the values for ArmManagementEndpoint.
+        /// </summary>
+        [DataMember(Order = 4)]
+        public string ArmManagementEndpoint { get; set; }
+
+    }
+
+    [DataContract]
+    public class RSVaultAsrCreds
+    {
+        /// <summary>
+        /// Gets or sets the values for VaultDetails.
+        /// </summary>
+        [DataMember(Order = 0)]
+        public ASRVaultDetails VaultDetails { get; set; }
+
+        /// <summary>
+        /// Gets or sets the subscription ID entry.
+        /// </summary>
+        [DataMember(Order = 1)]
+        public string ManagementCert { get; set; }
+
+        /// <summary>
+        /// Gets or sets the Version.
+        /// </summary>
+        [DataMember(Order = 2)]
+        public string Version { get; set; }
+
+        /// <summary>
+        /// Gets or sets the AadDetails.
+        /// </summary>
+        [DataMember(Order = 3)]
+        public ASRVaultAadDetails AadDetails { get; set; }
+
+        /// <summary>
+        /// Gets or sets the ChannelIntegrityKey.
+        /// </summary>
+        [DataMember(Order = 4)]
+        public string ChannelIntegrityKey { get; set; }
+
+        /// <summary>
+        /// Gets or sets the SiteId.
+        /// </summary>
+        [DataMember(Order = 5)]
+        public string SiteId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the Resource Group.
+        /// </summary>
+        [DataMember(Order = 6)]
+        public string SiteName { get; set; }
     }
 }

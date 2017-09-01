@@ -153,6 +153,9 @@
     <None Include="ScenarioTests\AsrTests.ps1">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="ScenarioTests\vaultSettings2.VaultCredentials">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="ScenarioTests\vaultSettings.VaultCredentials">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

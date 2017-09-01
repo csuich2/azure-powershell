@@ -75,7 +75,7 @@ namespace Microsoft.Azure.Commands.RecoveryServices
         /// <param name="managementCert">certificate to be uploaded</param>
         /// <param name="vault">vault object</param>
         /// <returns>credential object</returns>
-        public ASRVaultCreds GenerateVaultCredential(X509Certificate2 managementCert, ARSVault vault, ASRSite site)
+        public ASRVaultCreds GenerateVaultCredential(X509Certificate2 managementCert, ARSVault vault, ASRSite site,string authType)
         {
             ASRVaultCreds currentVaultContext = PSRecoveryServicesClient.arsVaultCreds;
 
@@ -105,7 +105,7 @@ namespace Microsoft.Azure.Commands.RecoveryServices
             // upload certificate and fetch of ACIK can be made parallel to improvve the performace.
 
             // Upload certificate
-            VaultCertificateResponse uploadCertificate = this.UpdateVaultCertificate(managementCert);
+            VaultCertificateResponse uploadCertificate = this.UpdateVaultCertificate(managementCert,authType);
 
             channelIntegrityKey = getChannelIntegrityKey;
 
@@ -182,12 +182,12 @@ namespace Microsoft.Azure.Commands.RecoveryServices
         /// </summary>
         /// <param name="cert">certificate object </param>
         /// <returns>Upload Certificate Response</returns>
-        private VaultCertificateResponse UpdateVaultCertificate(X509Certificate2 cert)
+        private VaultCertificateResponse UpdateVaultCertificate(X509Certificate2 cert,String authType)
         {
             var certificateArgs = new CertificateRequest();
             certificateArgs.Properties = new RawCertificateData();
             certificateArgs.Properties.Certificate = cert.GetRawCertData();
-            certificateArgs.Properties.AuthType = AuthType.ACS;
+            certificateArgs.Properties.AuthType = authType;
 
             VaultCertificateResponse response = this.UpdateVaultCertificate(certificateArgs, cert.FriendlyName);
 

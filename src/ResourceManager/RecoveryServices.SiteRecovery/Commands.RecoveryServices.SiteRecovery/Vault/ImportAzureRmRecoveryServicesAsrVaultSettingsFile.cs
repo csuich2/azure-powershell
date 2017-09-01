@@ -63,14 +63,13 @@ namespace Microsoft.Azure.Commands.RecoveryServices.SiteRecovery
                 {
                     try
                     {
-                        var serializer = new DataContractSerializer(typeof(ASRVaultCreds));
-                        using (var s = new FileStream(
-                            this.Path,
-                            FileMode.Open,
-                            FileAccess.Read,
-                            FileShare.Read))
+                        if (File.ReadAllText(this.Path).ToLower().Contains("<asrvaultcreds"))
                         {
-                            asrVaultCreds = (ASRVaultCreds)serializer.ReadObject(s);
+                            asrVaultCreds = readAcsASRVaultCreds();
+                        }
+                        else
+                        {
+                            asrVaultCreds = readAadASRVaultCreds();
                         }
                     }
                     catch (XmlException xmlException)
@@ -118,6 +117,44 @@ namespace Microsoft.Azure.Commands.RecoveryServices.SiteRecovery
 
                 this.WriteObject(new ASRVaultSettings(asrVaultCreds));
             }
+        }
+
+        private ASRVaultCreds readAcsASRVaultCreds()
+        {
+            ASRVaultCreds asrVaultCreds;
+            var serializer = new DataContractSerializer(typeof(ASRVaultCreds));
+                using (var s = new FileStream(
+                    this.Path,
+                    FileMode.Open,
+                    FileAccess.Read,
+                    FileShare.Read))
+                {
+                    asrVaultCreds = (ASRVaultCreds)serializer.ReadObject(s);
+                }
+            return asrVaultCreds;
+        }
+
+        private ASRVaultCreds readAadASRVaultCreds()
+        {
+            ASRVaultCreds asrVaultCreds;
+            var serializer = new DataContractSerializer(typeof(RSVaultAsrCreds));
+            using (var s = new FileStream(
+                this.Path,
+                FileMode.Open,
+                FileAccess.Read,
+                FileShare.Read))
+            {
+                RSVaultAsrCreds aadCreds = (RSVaultAsrCreds)serializer.ReadObject(s);
+                asrVaultCreds = new ASRVaultCreds();
+                asrVaultCreds.ChannelIntegrityKey = aadCreds.ChannelIntegrityKey;
+                asrVaultCreds.ResourceGroupName = aadCreds.VaultDetails.ResourceGroup;
+                asrVaultCreds.Version = Constants.VaultCredentialVersion;
+                asrVaultCreds.SiteId = aadCreds.SiteId;
+                asrVaultCreds.SiteName = aadCreds.SiteName;
+                asrVaultCreds.ResourceNamespace = aadCreds.VaultDetails.ProviderNamespace;
+                asrVaultCreds.ARMResourceType = aadCreds.VaultDetails.ResourceType;
+            }
+            return asrVaultCreds;
         }
     }
 }

@@ -87,6 +87,17 @@ namespace Microsoft.Azure.Commands.RecoveryServices
         [Parameter(Position = 2)]
         public string Path { get; set; }
 
+
+        /// <summary>
+        /// Gets or sets Authentication type.
+        /// </summary>
+        [Parameter(ParameterSetName = ARSParameterSets.ForSite, Mandatory = false)]
+        [Parameter(ParameterSetName = ARSParameterSets.ByDefault, Mandatory = false)]
+        [ValidateNotNullOrEmpty]
+        [ValidateSet(AuthType.AAD, AuthType.ACS, AuthType.AzureActiveDirectory, AuthType.AccessControlService)]
+        public String Auth { get; set; }
+
+
         /// <summary>
         /// Gets or sets the path where the credential file is to be generated
         /// </summary>
@@ -131,7 +142,7 @@ namespace Microsoft.Azure.Commands.RecoveryServices
                 }
                 else
                 {
-                    this.GetVaultSettingsFile();
+                   this.GetVaultSettingsFile();
                 }
             }
             catch (AggregateException aggregateEx)
@@ -148,13 +159,21 @@ namespace Microsoft.Azure.Commands.RecoveryServices
         /// </summary>
         private void GetVaultSettingsFile()
         {
+            string filePath = string.IsNullOrEmpty(this.Path) ? Utilities.GetDefaultPath() : this.Path;
+            
+            if (string.IsNullOrEmpty(this.Auth))
+            {
+                this.Auth = AuthType.AAD;
+            }
+
             IAzureSubscription subscription = DefaultProfile.DefaultContext.Subscription;
 
             // Generate certificate
             X509Certificate2 cert = CertUtils.CreateSelfSignedCertificate(VaultCertificateExpiryInHoursForHRM, subscription.Id.ToString(), this.Vault.Name);
 
             ASRSite site = new ASRSite();
-
+            string fileName = this.GenerateFileName();
+            
             if (!string.IsNullOrEmpty(this.SiteIdentifier) && !string.IsNullOrEmpty(this.SiteFriendlyName))
             {
                 site.ID = this.SiteIdentifier;
@@ -162,22 +181,64 @@ namespace Microsoft.Azure.Commands.RecoveryServices
             }
 
             // Generate file.
-            ASRVaultCreds vaultCreds = RecoveryServicesClient.GenerateVaultCredential(
+            if (this.Auth.Equals(AuthType.ACS) || this.Auth.Equals(AuthType.AccessControlService))
+            {
+                ASRVaultCreds vaultCreds = RecoveryServicesClient.GenerateVaultCredential(
                                             cert,
                                             this.Vault,
-                                            site);
+                                            site,
+                                            this.Auth);
+                
+                // write the content to a file.
+                VaultSettingsFilePath output = new VaultSettingsFilePath()
+                {
+                    FilePath = Utilities.WriteToFile<ASRVaultCreds>(vaultCreds, filePath, fileName)
+                };
 
-            string filePath = string.IsNullOrEmpty(this.Path) ? Utilities.GetDefaultPath() : this.Path;
-            string fileName = this.GenerateFileName();
-
-            // write the content to a file.
-            VaultSettingsFilePath output = new VaultSettingsFilePath()
+                // print the path to the user.
+                this.WriteObject(output, true);
+            }
+            else
             {
-                FilePath = Utilities.WriteToFile<ASRVaultCreds>(vaultCreds, filePath, fileName)
-            };
+                WriteDebug(string.Format(CultureInfo.InvariantCulture,
+                                          Resources.ExecutingGetVaultCredCmdlet,
+                                          subscription.Id, this.Vault.ResourceGroupName, this.Vault.Name, filePath));
 
-            // print the path to the user.
-            this.WriteObject(output, true);
+                VaultCertificateResponse vaultCertificateResponse = null;
+                string channelIntegrityKey = string.Empty;
+                try
+                {
+                    // Upload cert into ID Mgmt
+                    WriteDebug(string.Format(CultureInfo.InvariantCulture, Resources.UploadingCertToIdmgmt));
+                    vaultCertificateResponse = UploadCert(cert);
+                    WriteDebug(string.Format(CultureInfo.InvariantCulture, Resources.UploadedCertToIdmgmt));
+                
+                    // generate vault credentials
+                    string vaultCredsFileContent = GenerateVaultCredsForSiteRecovery(cert, subscription.Id, vaultCertificateResponse);
+
+                    // NOTE: One of the scenarios for this cmdlet is to generate a file which will be an input 
+                    //       to DPM servers. 
+                    //       We found a bug in the DPM UI which is looking for a particular namespace in the input file.
+                    //       The below is a hack to circumvent this issue and this would be removed once the bug can be fixed.
+                    vaultCredsFileContent = vaultCredsFileContent.Replace("Microsoft.Azure.Commands.AzureBackup.Models",
+                        "Microsoft.Azure.Portal.RecoveryServices.Models.Common");
+                    WriteDebug(string.Format(Resources.SavingVaultCred, filePath));
+
+                    File.WriteAllBytes(filePath, Encoding.UTF8.GetBytes(vaultCredsFileContent));
+
+                    VaultSettingsFilePath output = new VaultSettingsFilePath()
+                    {
+                        FilePath = filePath,
+                    };
+                   
+                    // Output filename back to user
+                    WriteObject(output);
+                }
+                catch (Exception exception)
+                {
+                    throw exception;
+                }
+            }
         }
 
         /// <summary>
@@ -331,6 +392,58 @@ namespace Microsoft.Azure.Commands.RecoveryServices
                     serializer.WriteObject(writer, vaultCreds);
 
                     WriteDebug(string.Format(CultureInfo.InvariantCulture, Resources.BackupVaultSerialized));
+                }
+
+                return Encoding.UTF8.GetString(output.ToArray());
+            }
+        }
+
+        /// <summary>
+        /// Generates vault creds file content for backup Vault
+        /// </summary>
+        /// <param name="cert">management certificate</param>
+        /// <param name="subscriptionId">subscription Id</param>
+        /// <param name="vaultCertificateResponse">vaultCertificate Response</param>
+        /// <returns>xml file in string format</returns>
+        private string GenerateVaultCredsForSiteRecovery(X509Certificate2 cert, string subscriptionId,
+            VaultCertificateResponse vaultCertificateResponse)
+        {
+            using (var output = new MemoryStream())
+            {
+                using (var writer = XmlWriter.Create(output, GetXmlWriterSettings()))
+                {
+                    ResourceCertificateAndAadDetails aadDetails = vaultCertificateResponse.Properties as ResourceCertificateAndAadDetails;
+
+                    RSVaultAsrCreds vaultCreds = new RSVaultAsrCreds()
+                    {
+                        VaultDetails = new ASRVaultDetails
+                                            {
+                                                SubscriptionId = subscriptionId,
+                                                ResourceGroup = "",
+                                                ResourceName = "",
+                                                ResourceId = "",
+                                                Location = "",
+                                                ResourceType = "",
+                                                ProviderNamespace = ""
+                                            },
+                        ManagementCert = "",
+                        Version = "",
+                        AadDetails = new ASRVaultAadDetails
+                                            {
+                                                 AadDetails ="",
+                                                AadAuthority = "",
+                                                AadTenantId ="",
+                                                ServicePrincipalClientId ="",
+                                                ArmManagementEndpoint=""
+                                            },
+                        ChannelIntegrityKey = "",
+                        SiteId ="",
+                        SiteName =""
+                    };
+
+                    DataContractSerializer serializer = new DataContractSerializer(typeof(RSVaultAsrCreds));
+                    serializer.WriteObject(writer, vaultCreds);
+                    WriteDebug("ASR vault serialized");
                 }
 
                 return Encoding.UTF8.GetString(output.ToArray());

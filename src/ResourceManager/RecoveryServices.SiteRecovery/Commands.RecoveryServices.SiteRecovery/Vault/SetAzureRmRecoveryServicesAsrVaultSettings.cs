@@ -14,6 +14,7 @@
 
 using System;
 using System.Management.Automation;
+using Microsoft.Azure.Management.RecoveryServices.Models;
 using Microsoft.Azure.Commands.RecoveryServices.SiteRecovery.Properties;
 
 namespace Microsoft.Azure.Commands.RecoveryServices.SiteRecovery
@@ -44,6 +45,16 @@ namespace Microsoft.Azure.Commands.RecoveryServices.SiteRecovery
         public ARSVault Vault { get; set; }
 
         /// <summary>
+        ///     Gets or sets ARS vault Object.
+        /// </summary>
+        [Parameter(
+            ParameterSetName = ASRParameterSets.ARSVault,
+            Mandatory = false,
+            ValueFromPipeline = true)]
+        [ValidateNotNullOrEmpty]
+        public String Auth { get; set; }
+
+        /// <summary>
         ///     ProcessRecord of the command.
         /// </summary>
         public override void ExecuteSiteRecoveryCmdlet()
@@ -57,7 +68,7 @@ namespace Microsoft.Azure.Commands.RecoveryServices.SiteRecovery
                 switch (this.ParameterSetName)
                 {
                     case ASRParameterSets.ARSVault:
-                        this.SetARSVaultContext(this.Vault);
+                        this.SetARSVaultContext(this.Vault,this.Auth);
                         break;
                     default:
                         throw new PSInvalidOperationException(Resources.InvalidParameterSet);
@@ -68,18 +79,20 @@ namespace Microsoft.Azure.Commands.RecoveryServices.SiteRecovery
         /// <summary>
         ///     Set Azure Recovery Services Vault context.
         /// </summary>
-        private void SetARSVaultContext(
-            ARSVault arsVault)
+        private void SetARSVaultContext(ARSVault arsVault,string authType)
         {
             try
             {
                 using (var powerShell = System.Management.Automation.PowerShell.Create())
                 {
+                    if (string.IsNullOrEmpty(authType))
+                    {
+                        authType = AuthType.AAD;
+                    }
                     var result = powerShell
                         .AddCommand("Get-AzureRmRecoveryServicesVaultSettingsFile")
-                        .AddParameter(
-                            "Vault",
-                            arsVault)
+                        .AddParameter("Vault", arsVault)
+                        .AddParameter("Auth", authType)
                         .Invoke();
 
                     var vaultSettingspath = (string)result[0]

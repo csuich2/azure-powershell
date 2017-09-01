@@ -178,5 +178,18 @@ namespace Microsoft.Azure.Commands.RecoveryServices.SiteRecovery.Test.ScenarioTe
                 this.vaultSettingsFilePath +
                 "\"");
         }
+
+        [Fact]
+        [Trait(
+            Category.AcceptanceType,
+            Category.CheckIn)]
+        public void VerifyAuth()
+        {
+            this.RunPowerShellTest(
+              Constants.NewModel,
+              "Test-VerifyAuth -vaultSettingsFilePath \"" +
+              this.vaultSettingsFilePath +
+              "\"");
+        }
     }
 }
