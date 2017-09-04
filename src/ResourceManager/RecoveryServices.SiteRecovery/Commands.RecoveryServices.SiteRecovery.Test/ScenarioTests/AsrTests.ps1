@@ -513,11 +513,11 @@ function Test-VerifyAuth
 	Get-AzureRmRecoveryServicesVaultSettingsFile -Path $vaultSettingsFilePath -Auth "ACS" $rgName -Name $VaultName
 	Import-AzureRmRecoveryServicesAsrVaultSettingsFile -Path $vaultSettingsFilePath
 	
-	Get-AzureRmRecoveryServicesVaultSettingsFile -Path $vaultSettingsFilePath -Auth "AAS" $rgName -Name $VaultName
+	Get-AzureRmRecoveryServicesVaultSettingsFile -Path $vaultSettingsFilePath -Auth "AAD" $rgName -Name $VaultName
 	Import-AzureRmRecoveryServicesAsrVaultSettingsFile -Path $vaultSettingsFilePath
 	
-	
-	Set-AzureRmRecoveryServicesAsrVaultSettings $rgName -Name $VaultName
-	
 	Set-ASRVaultSettings -Vault $Vault
+	Set-AzureRmRecoveryServicesAsrVaultSettings $rgName -Name $VaultName -Auth "AAD"
+	Set-AzureRmRecoveryServicesAsrVaultSettings $rgName -Name $VaultName -Auth "ACS"
+	
 }

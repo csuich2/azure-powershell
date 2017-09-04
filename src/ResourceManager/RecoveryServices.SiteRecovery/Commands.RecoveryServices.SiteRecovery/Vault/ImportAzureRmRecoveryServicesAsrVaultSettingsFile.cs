@@ -148,7 +148,7 @@ namespace Microsoft.Azure.Commands.RecoveryServices.SiteRecovery
                 asrVaultCreds = new ASRVaultCreds();
                 asrVaultCreds.ChannelIntegrityKey = aadCreds.ChannelIntegrityKey;
                 asrVaultCreds.ResourceGroupName = aadCreds.VaultDetails.ResourceGroup;
-                asrVaultCreds.Version = Constants.NewVaultCredentialVersion;
+                asrVaultCreds.Version = aadCreds.Version;
                 asrVaultCreds.SiteId = aadCreds.SiteId;
                 asrVaultCreds.SiteName = aadCreds.SiteName;
                 asrVaultCreds.ResourceNamespace = aadCreds.VaultDetails.ProviderNamespace;
