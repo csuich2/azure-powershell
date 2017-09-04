@@ -177,13 +177,14 @@ namespace Microsoft.Azure.Commands.RecoveryServices
                 this.Auth = AuthType.AAD;
             }
 
+            string fileName = this.GenerateFileName();
+
+            string filePath = string.IsNullOrEmpty(this.Path) ? Utilities.GetDefaultPath() : this.Path;
+
             // Generate file.
             if (this.Auth.Equals(AuthType.ACS) || this.Auth.Equals(AuthType.AccessControlService))
             {
-                string fileName = this.GenerateFileName();
-
-                string filePath = string.IsNullOrEmpty(this.Path) ? Utilities.GetDefaultPath() : this.Path;
-
+               
                 ASRVaultCreds vaultCreds = RecoveryServicesClient.GenerateVaultCredential(
                                             cert,
                                             this.Vault,
@@ -201,7 +202,7 @@ namespace Microsoft.Azure.Commands.RecoveryServices
             }
             else
             {
-                string fullFilePath = string.IsNullOrEmpty(this.Path) ? Utilities.GetDefaultPath() + this.GenerateFileName() : this.Path;
+                string fullFilePath = string.IsNullOrEmpty(this.Path) ? Utilities.GetDefaultPath() + fileName : this.Path;
 
                 WriteDebug(string.Format(CultureInfo.InvariantCulture,
                                           Resources.ExecutingGetVaultCredCmdlet,

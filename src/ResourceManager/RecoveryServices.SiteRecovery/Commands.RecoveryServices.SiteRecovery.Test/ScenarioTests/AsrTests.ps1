@@ -491,33 +491,33 @@ Site Recovery New model End to End
 #>
 function Test-VerifyAuth
 {
-	param([string] $vaultSettingsFilePath,
+	param([string] $DowloadFolder,
 			[string] $DownloadFilePath)
 
 	$VaultName = "IbizaV2ATest"
     $rgName = "canaryexproute"
 	$Vault = Get-AzureRMRecoveryServicesVault -ResourceGroupName $rgName -Name $VaultName
 
-	Get-AzureRmRecoveryServicesVaultSettingsFile -Path $DownloadFilePath -Vault $Vault
-	Import-AzureRmRecoveryServicesAsrVaultSettingsFile -Path $vaultSettingsFilePath
+	$path = Get-AzureRmRecoveryServicesVaultSettingsFile -Path $DownloadFilePath -Vault $Vault
+	Import-AzureRmRecoveryServicesAsrVaultSettingsFile -Path $path.FilePath
 	
-	Get-AzureRmRecoveryServicesVaultSettingsFile -Path $vaultSettingsFilePath -SiteRecovery $rgName -Name $VaultName
-	Import-AzureRmRecoveryServicesAsrVaultSettingsFile -Path $vaultSettingsFilePath
+	Get-AzureRmRecoveryServicesVaultSettingsFile -Path $DowloadFolder -Vault $Vault
+	Import-AzureRmRecoveryServicesAsrVaultSettingsFile -Path $path.FilePath
 	
-	Get-AzureRmRecoveryServicesVaultSettingsFile -Path $vaultSettingsFilePath -SiteRecovery -Auth "ACS" $rgName -Name $VaultName
-	Import-AzureRmRecoveryServicesAsrVaultSettingsFile -Path $vaultSettingsFilePath
+	Get-AzureRmRecoveryServicesVaultSettingsFile -Path $DowloadFolder -Vault $Vault -Auth "ACS"
+	Import-AzureRmRecoveryServicesAsrVaultSettingsFile -Path $path.FilePath
 	
-	Get-AzureRmRecoveryServicesVaultSettingsFile -Path $vaultSettingsFilePath -SiteRecovery -Auth "AAD" $rgName -Name $VaultName
-	Import-AzureRmRecoveryServicesAsrVaultSettingsFile -Path $vaultSettingsFilePath
+	Get-AzureRmRecoveryServicesVaultSettingsFile -Path $DowloadFolder -Vault $Vault -Auth "AAD" 
+	Import-AzureRmRecoveryServicesAsrVaultSettingsFile -Path $path.FilePath
 	
-	Get-AzureRmRecoveryServicesVaultSettingsFile -Path $vaultSettingsFilePath -Auth "ACS" $rgName -Name $VaultName
-	Import-AzureRmRecoveryServicesAsrVaultSettingsFile -Path $vaultSettingsFilePath
+	Get-AzureRmRecoveryServicesVaultSettingsFile -Path $DowloadFolder -Auth "ACS" -SiteRecovery -Vault $Vault
+	Import-AzureRmRecoveryServicesAsrVaultSettingsFile -Path $path.FilePath
 	
-	Get-AzureRmRecoveryServicesVaultSettingsFile -Path $vaultSettingsFilePath -Auth "AAD" $rgName -Name $VaultName
-	Import-AzureRmRecoveryServicesAsrVaultSettingsFile -Path $vaultSettingsFilePath
+	Get-AzureRmRecoveryServicesVaultSettingsFile -Path $DowloadFolder -Auth "AAD"-SiteRecovery -Vault $Vault
+	Import-AzureRmRecoveryServicesAsrVaultSettingsFile -Path $path.FilePath
 	
 	Set-ASRVaultSettings -Vault $Vault
-	Set-AzureRmRecoveryServicesAsrVaultSettings $rgName -Name $VaultName -Auth "AAD"
-	Set-AzureRmRecoveryServicesAsrVaultSettings $rgName -Name $VaultName -Auth "ACS"
+	Set-AzureRmRecoveryServicesAsrVaultSettings -Vault $Vault -Auth "AAD"
+	Set-AzureRmRecoveryServicesAsrVaultSettings -Vault $Vault -Auth "ACS"
 	
 }
