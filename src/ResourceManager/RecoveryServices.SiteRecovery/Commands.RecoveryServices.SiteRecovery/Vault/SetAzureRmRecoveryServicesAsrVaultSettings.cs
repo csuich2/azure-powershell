@@ -51,7 +51,7 @@ namespace Microsoft.Azure.Commands.RecoveryServices.SiteRecovery
             ParameterSetName = ASRParameterSets.ARSVault,
             Mandatory = false,
             ValueFromPipeline = true)]
-        [ValidateNotNullOrEmpty]
+        [ValidateSet(AuthType.AAD, AuthType.ACS, AuthType.AzureActiveDirectory, AuthType.AccessControlService)]
         public String Auth { get; set; }
 
         /// <summary>

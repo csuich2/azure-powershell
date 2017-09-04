@@ -388,7 +388,12 @@ namespace Microsoft.Azure.Commands.RecoveryServices.SiteRecovery
         /// <summary>
         ///     Vault Credential version.
         /// </summary>
-        public const string VaultCredentialVersion = "2.0";
+        public const string VaultCredentialVersion = "1.0";
+
+        /// <summary>
+        ///     Vault Credential version.
+        /// </summary>
+        public const string NewVaultCredentialVersion = "2.0";
 
         /// <summary>
         ///     extended information version.

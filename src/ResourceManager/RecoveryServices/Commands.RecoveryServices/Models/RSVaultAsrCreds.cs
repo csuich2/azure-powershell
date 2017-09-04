@@ -41,7 +41,7 @@ namespace Microsoft.Azure.Portal.RecoveryServices.Models.Common
         /// Gets or sets the values for ResourceId.
         /// </summary>
         [DataMember(Order = 3)]
-        public string ResourceId { get; set; }
+        public long ResourceId { get; set; }
 
         /// <summary>
         /// Gets or sets the values for Location.
@@ -67,33 +67,27 @@ namespace Microsoft.Azure.Portal.RecoveryServices.Models.Common
     public class ASRVaultAadDetails
     {
         /// <summary>
-        /// Gets or sets the values for AadDetails.
-        /// </summary>
-        [DataMember(Order = 0)]
-        public string AadDetails { get; set; }
-
-        /// <summary>
         /// Gets or sets the values for AadAuthority.
         /// </summary>
-        [DataMember(Order = 1)]
+        [DataMember(Order = 0)]
         public string AadAuthority { get; set; }
 
         /// <summary>
         /// Gets or sets the values for AadTenantId.
         /// </summary>
-        [DataMember(Order = 2)]
+        [DataMember(Order = 1)]
         public string AadTenantId { get; set; }
 
         /// <summary>
         /// Gets or sets the values for ServicePrincipalClientId.
         /// </summary>
-        [DataMember(Order = 3)]
+        [DataMember(Order = 2)]
         public string ServicePrincipalClientId { get; set; }
 
         /// <summary>
         /// Gets or sets the values for ArmManagementEndpoint.
         /// </summary>
-        [DataMember(Order = 4)]
+        [DataMember(Order = 3)]
         public string ArmManagementEndpoint { get; set; }
 
     }

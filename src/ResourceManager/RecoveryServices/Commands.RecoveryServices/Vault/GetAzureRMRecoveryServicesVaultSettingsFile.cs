@@ -142,7 +142,7 @@ namespace Microsoft.Azure.Commands.RecoveryServices
                 }
                 else
                 {
-                   this.GetVaultSettingsFile();
+                    this.GetVaultSettingsFile();
                 }
             }
             catch (AggregateException aggregateEx)
@@ -159,30 +159,31 @@ namespace Microsoft.Azure.Commands.RecoveryServices
         /// </summary>
         private void GetVaultSettingsFile()
         {
-            string filePath = string.IsNullOrEmpty(this.Path) ? Utilities.GetDefaultPath() : this.Path;
-            
-            if (string.IsNullOrEmpty(this.Auth))
-            {
-                this.Auth = AuthType.AAD;
-            }
-
             IAzureSubscription subscription = DefaultProfile.DefaultContext.Subscription;
 
             // Generate certificate
             X509Certificate2 cert = CertUtils.CreateSelfSignedCertificate(VaultCertificateExpiryInHoursForHRM, subscription.Id.ToString(), this.Vault.Name);
 
             ASRSite site = new ASRSite();
-            string fileName = this.GenerateFileName();
-            
+
             if (!string.IsNullOrEmpty(this.SiteIdentifier) && !string.IsNullOrEmpty(this.SiteFriendlyName))
             {
                 site.ID = this.SiteIdentifier;
                 site.Name = this.SiteFriendlyName;
             }
 
+            if (string.IsNullOrEmpty(this.Auth))
+            {
+                this.Auth = AuthType.AAD;
+            }
+
             // Generate file.
             if (this.Auth.Equals(AuthType.ACS) || this.Auth.Equals(AuthType.AccessControlService))
             {
+                string fileName = this.GenerateFileName();
+
+                string filePath = string.IsNullOrEmpty(this.Path) ? Utilities.GetDefaultPath() : this.Path;
+
                 ASRVaultCreds vaultCreds = RecoveryServicesClient.GenerateVaultCredential(
                                             cert,
                                             this.Vault,
@@ -200,9 +201,11 @@ namespace Microsoft.Azure.Commands.RecoveryServices
             }
             else
             {
+                string fullFilePath = string.IsNullOrEmpty(this.Path) ? Utilities.GetDefaultPath() + this.GenerateFileName() : this.Path;
+
                 WriteDebug(string.Format(CultureInfo.InvariantCulture,
                                           Resources.ExecutingGetVaultCredCmdlet,
-                                          subscription.Id, this.Vault.ResourceGroupName, this.Vault.Name, filePath));
+                                          subscription.Id, this.Vault.ResourceGroupName, this.Vault.Name, fullFilePath));
 
                 VaultCertificateResponse vaultCertificateResponse = null;
                 string channelIntegrityKey = string.Empty;
@@ -222,17 +225,17 @@ namespace Microsoft.Azure.Commands.RecoveryServices
                     //       The below is a hack to circumvent this issue and this would be removed once the bug can be fixed.
                     vaultCredsFileContent = vaultCredsFileContent.Replace("Microsoft.Azure.Commands.AzureBackup.Models",
                         "Microsoft.Azure.Portal.RecoveryServices.Models.Common");
-                    WriteDebug(string.Format(Resources.SavingVaultCred, filePath));
+                    WriteDebug(string.Format(Resources.SavingVaultCred, fullFilePath));
 
-                    File.WriteAllBytes(filePath, Encoding.UTF8.GetBytes(vaultCredsFileContent));
+                    File.WriteAllBytes(fullFilePath, Encoding.UTF8.GetBytes(vaultCredsFileContent));
 
                     VaultSettingsFilePath output = new VaultSettingsFilePath()
                     {
-                        FilePath = filePath,
+                        FilePath = fullFilePath,
                     };
                    
                     // Output filename back to user
-                    WriteObject(output);
+                    WriteObject(output,true);
                 }
                 catch (Exception exception)
                 {
@@ -413,29 +416,27 @@ namespace Microsoft.Azure.Commands.RecoveryServices
                 using (var writer = XmlWriter.Create(output, GetXmlWriterSettings()))
                 {
                     ResourceCertificateAndAadDetails aadDetails = vaultCertificateResponse.Properties as ResourceCertificateAndAadDetails;
-
                     RSVaultAsrCreds vaultCreds = new RSVaultAsrCreds()
                     {
                         VaultDetails = new ASRVaultDetails
                                             {
                                                 SubscriptionId = subscriptionId,
-                                                ResourceGroup = "",
-                                                ResourceName = "",
-                                                ResourceId = "",
-                                                Location = "",
-                                                ResourceType = "",
-                                                ProviderNamespace = ""
-                                            },
-                        ManagementCert = "",
-                        Version = "",
+                                                ResourceGroup = this.Vault.ResourceGroupName,
+                                                ResourceName = this.Vault.Name,
+                                                ResourceId = aadDetails.ResourceId.Value,
+                                                Location = Vault.Location,
+                                                ResourceType = RecoveryServicesVaultType,
+                                                ProviderNamespace = PSRecoveryServicesClient.ProductionRpNamespace
+                        },
+                        ManagementCert = CertUtils.SerializeCert(cert, X509ContentType.Pfx),
+                        Version = VaultCredentialVersionAad,
                         AadDetails = new ASRVaultAadDetails
                                             {
-                                                 AadDetails ="",
-                                                AadAuthority = "",
-                                                AadTenantId ="",
-                                                ServicePrincipalClientId ="",
-                                                ArmManagementEndpoint=""
-                                            },
+                                                AadAuthority = aadDetails.AadAuthority,
+                                                AadTenantId = aadDetails.AadTenantId,
+                                                ServicePrincipalClientId = aadDetails.ServicePrincipalClientId,
+                                                ArmManagementEndpoint= aadDetails.AzureManagementEndpointAudience
+                        },
                         ChannelIntegrityKey = "",
                         SiteId ="",
                         SiteName =""

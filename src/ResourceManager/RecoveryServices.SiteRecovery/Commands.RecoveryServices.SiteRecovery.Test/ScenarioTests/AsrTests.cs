@@ -187,7 +187,7 @@ namespace Microsoft.Azure.Commands.RecoveryServices.SiteRecovery.Test.ScenarioTe
         {
             this.RunPowerShellTest(
               Constants.NewModel,
-              "Test-VerifyAuth -vaultSettingsFilePath \"" +
+              "Test-VerifyAuth -DownloadFilePath \"e:\\v2.vaultSettings \"-vaultSettingsFilePath \"" +
               this.vaultSettingsFilePath +
               "\"");
         }

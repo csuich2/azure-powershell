@@ -19,7 +19,6 @@ using System.Runtime.Serialization;
 using System.Xml;
 using Microsoft.Azure.Commands.RecoveryServices.SiteRecovery.Properties;
 using Microsoft.Azure.Portal.RecoveryServices.Models.Common;
-using Microsoft.Azure.Management.RecoveryServices.Models;
 
 namespace Microsoft.Azure.Commands.RecoveryServices.SiteRecovery
 {
@@ -149,11 +148,12 @@ namespace Microsoft.Azure.Commands.RecoveryServices.SiteRecovery
                 asrVaultCreds = new ASRVaultCreds();
                 asrVaultCreds.ChannelIntegrityKey = aadCreds.ChannelIntegrityKey;
                 asrVaultCreds.ResourceGroupName = aadCreds.VaultDetails.ResourceGroup;
-                asrVaultCreds.Version = Constants.VaultCredentialVersion;
+                asrVaultCreds.Version = Constants.NewVaultCredentialVersion;
                 asrVaultCreds.SiteId = aadCreds.SiteId;
                 asrVaultCreds.SiteName = aadCreds.SiteName;
                 asrVaultCreds.ResourceNamespace = aadCreds.VaultDetails.ProviderNamespace;
                 asrVaultCreds.ARMResourceType = aadCreds.VaultDetails.ResourceType;
+                asrVaultCreds.ResourceName = aadCreds.VaultDetails.ResourceName;
             }
             return asrVaultCreds;
         }
