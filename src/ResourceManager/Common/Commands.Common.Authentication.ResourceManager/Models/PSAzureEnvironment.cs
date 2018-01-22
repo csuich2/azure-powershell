@@ -109,6 +109,8 @@ namespace Microsoft.Azure.Commands.Profile.Models
             TrafficManagerDnsSuffix = other.GetProperty<string>(nameof(TrafficManagerDnsSuffix));
             AzureOperationalInsightsEndpointResourceId =
                 other.GetProperty<string>(nameof(AzureOperationalInsightsEndpointResourceId));
+            AzureApplicationInsightsEndpointResourceId =
+                other.GetProperty<string>(nameof(AzureApplicationInsightsEndpointResourceId));
             AzureOperationalInsightsEndpoint = other.GetProperty<string>(nameof(AzureOperationalInsightsEndpoint));
             VersionProfiles.Populate(nameof(VersionProfiles), other);
             this.PopulateExtensions(other);
@@ -257,6 +259,36 @@ namespace Microsoft.Azure.Commands.Profile.Models
             }
         }
 
+        /// <summary>
+        /// The token audience required for communicating with the Azure Application Insights query service in this environment
+        /// </summary>
+        public string AzureApplicationInsightsEndpointResourceId
+        {
+            get
+            {
+                return this.GetEndpoint(AzureEnvironment.ExtendedEndpoint.ApplicationInsightsEndpointResourceId);
+            }
+            set
+            {
+                this.SetEndpoint(AzureEnvironment.ExtendedEndpoint.ApplicationInsightsEndpointResourceId, value);
+            }
+        }
+
+        /// <summary>
+        /// The endpoint to use when communicating with the Azure Application Insights query service in this environment
+        /// </summary>
+        public string AzureApplicationInsightsEndpoint
+        {
+            get
+            {
+                return this.GetEndpoint(AzureEnvironment.ExtendedEndpoint.ApplicationInsightsEndpoint);
+            }
+            set
+            {
+                this.SetEndpoint(AzureEnvironment.ExtendedEndpoint.ApplicationInsightsEndpoint, value);
+            }
+        }
+
         public IList<string> VersionProfiles { get; } = new List<string>();
 
         public IDictionary<string, string> ExtendedProperties { get; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
@@ -296,7 +328,9 @@ namespace Microsoft.Azure.Commands.Profile.Models
                        && TrafficManagerDnsSuffix == other.TrafficManagerDnsSuffix
                        && BatchEndpointResourceId == other.BatchEndpointResourceId
                        && AzureOperationalInsightsEndpointResourceId == other.AzureOperationalInsightsEndpointResourceId
-                       && AzureOperationalInsightsEndpoint == other.AzureOperationalInsightsEndpoint;
+                       && AzureOperationalInsightsEndpoint == other.AzureOperationalInsightsEndpoint
+                       && AzureApplicationInsightsEndpointResourceId == other.AzureApplicationInsightsEndpointResourceId
+                       && AzureApplicationInsightsEndpoint == other.AzureApplicationInsightsEndpoint;
             }
 
             return false;

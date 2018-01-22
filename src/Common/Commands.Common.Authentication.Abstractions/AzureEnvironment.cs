@@ -309,6 +309,8 @@ namespace Microsoft.Azure.Commands.Common.Authentication.Abstractions
         {
             public const string OperationalInsightsEndpointResourceId = "OperationalInsightsEndpointResourceId",
                 OperationalInsightsEndpoint = "OperationalInsightsEndpoint";
+            public const string ApplicationInsightsEndpointResourceId = "ApplicationInsightsEndpointResourceId",
+                ApplicationInsightsEndpoint = "ApplicationInsightsEndpoint";
         }
     }
 }

@@ -673,6 +673,8 @@ namespace Microsoft.Azure.Commands.ResourceManager.Common.Test
             };
             environment.SetProperty(AzureEnvironment.ExtendedEndpoint.OperationalInsightsEndpoint, "http://contoso.io");
             environment.SetProperty(AzureEnvironment.ExtendedEndpoint.OperationalInsightsEndpointResourceId, "http://insights.contoso.io/");
+            environment.SetProperty(AzureEnvironment.ExtendedEndpoint.ApplicationInsightsEndpoint, "http://contoso.io");
+            environment.SetProperty(AzureEnvironment.ExtendedEndpoint.ApplicationInsightsEndpointResourceId, "http://appinsights.contoso.io/");
             var account = new AzureAccount
             {
                 Id = "me@contoso.com",
@@ -719,6 +721,10 @@ namespace Microsoft.Azure.Commands.ResourceManager.Common.Test
             Assert.True(deserializedProfile.DefaultContext.Environment.IsPropertySet(AzureEnvironment.ExtendedEndpoint.OperationalInsightsEndpointResourceId));
             Assert.Equal("http://contoso.io", deserializedProfile.DefaultContext.Environment.GetProperty(AzureEnvironment.ExtendedEndpoint.OperationalInsightsEndpoint));
             Assert.Equal("http://insights.contoso.io/", deserializedProfile.DefaultContext.Environment.GetProperty(AzureEnvironment.ExtendedEndpoint.OperationalInsightsEndpointResourceId));
+            Assert.True(deserializedProfile.DefaultContext.Environment.IsPropertySet(AzureEnvironment.ExtendedEndpoint.ApplicationInsightsEndpoint));
+            Assert.True(deserializedProfile.DefaultContext.Environment.IsPropertySet(AzureEnvironment.ExtendedEndpoint.ApplicationInsightsEndpointResourceId));
+            Assert.Equal("http://contoso.io", deserializedProfile.DefaultContext.Environment.GetProperty(AzureEnvironment.ExtendedEndpoint.ApplicationInsightsEndpoint));
+            Assert.Equal("http://appinsights.contoso.io/", deserializedProfile.DefaultContext.Environment.GetProperty(AzureEnvironment.ExtendedEndpoint.ApplicationInsightsEndpointResourceId));
         }
 
         [Fact]
@@ -753,7 +759,9 @@ namespace Microsoft.Azure.Commands.ResourceManager.Common.Test
       ""VersionProfiles"": [],
       ""ExtendedProperties"": {
         ""OperationalInsightsEndpoint"": ""http://contoso.io"",
-        ""OperationalInsightsEndpointResourceId"": ""http://insights.contoso.io/""
+        ""OperationalInsightsEndpointResourceId"": ""http://insights.contoso.io/"",
+        ""ApplicationInsightsEndpoint"": ""http://contoso.io"",
+        ""ApplicationInsightsEndpointResourceId"": ""http://appinsights.contoso.io/""
       }
     }
   },
@@ -808,7 +816,9 @@ namespace Microsoft.Azure.Commands.ResourceManager.Common.Test
         ""VersionProfiles"": [],
         ""ExtendedProperties"": {
           ""OperationalInsightsEndpoint"": ""http://contoso.io"",
-          ""OperationalInsightsEndpointResourceId"": ""http://insights.contoso.io/""
+          ""OperationalInsightsEndpointResourceId"": ""http://insights.contoso.io/"",
+          ""ApplicationInsightsEndpoint"": ""http://contoso.io"",
+          ""ApplicationInsightsEndpointResourceId"": ""http://appinsights.contoso.io/""
         }
       },
       ""VersionProfile"": null,
@@ -832,6 +842,8 @@ namespace Microsoft.Azure.Commands.ResourceManager.Common.Test
             };
             environment.SetProperty(AzureEnvironment.ExtendedEndpoint.OperationalInsightsEndpoint, "http://contoso.io");
             environment.SetProperty(AzureEnvironment.ExtendedEndpoint.OperationalInsightsEndpointResourceId, "http://insights.contoso.io/");
+            environment.SetProperty(AzureEnvironment.ExtendedEndpoint.ApplicationInsightsEndpoint, "http://contoso.io");
+            environment.SetProperty(AzureEnvironment.ExtendedEndpoint.ApplicationInsightsEndpointResourceId, "http://appinsights.contoso.io/");
             var account = new AzureAccount
             {
                 Id = "me@contoso.com",

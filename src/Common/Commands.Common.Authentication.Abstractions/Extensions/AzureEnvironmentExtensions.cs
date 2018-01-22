@@ -271,6 +271,12 @@ namespace Microsoft.Azure.Commands.Common.Authentication.Abstractions
                     case AzureEnvironment.ExtendedEndpoint.OperationalInsightsEndpoint:
                         environment.SetProperty(AzureEnvironment.ExtendedEndpoint.OperationalInsightsEndpoint, propertyValue);
                         break;
+                    case AzureEnvironment.ExtendedEndpoint.ApplicationInsightsEndpointResourceId:
+                        environment.SetProperty(AzureEnvironment.ExtendedEndpoint.ApplicationInsightsEndpointResourceId, propertyValue);
+                        break;
+                    case AzureEnvironment.ExtendedEndpoint.ApplicationInsightsEndpoint:
+                        environment.SetProperty(AzureEnvironment.ExtendedEndpoint.ApplicationInsightsEndpoint, propertyValue);
+                        break;
                 }
             }
         }
@@ -301,6 +307,10 @@ namespace Microsoft.Azure.Commands.Common.Authentication.Abstractions
                 case AzureEnvironment.ExtendedEndpoint.OperationalInsightsEndpoint:
                 case AzureEnvironment.ExtendedEndpoint.OperationalInsightsEndpointResourceId:
                     resource = AzureEnvironment.ExtendedEndpoint.OperationalInsightsEndpointResourceId;
+                    break;
+                case AzureEnvironment.ExtendedEndpoint.ApplicationInsightsEndpoint:
+                case AzureEnvironment.ExtendedEndpoint.ApplicationInsightsEndpointResourceId:
+                    resource = AzureEnvironment.ExtendedEndpoint.ApplicationInsightsEndpointResourceId;
                     break;
                 default:
                     resource = AzureEnvironment.Endpoint.ActiveDirectoryServiceEndpointResourceId;
