@@ -54,7 +54,8 @@ CLRVersion = '4.0'
 RequiredModules = @(@{ModuleName = 'AzureRM.Profile'; ModuleVersion = '4.1.1'; })
 
 # Assemblies that must be loaded prior to importing this module
-RequiredAssemblies = '.\Microsoft.Azure.Management.ApplicationInsights.dll'
+RequiredAssemblies = '.\Microsoft.Azure.Management.ApplicationInsights.dll',
+                     '.\Microsoft.Azure.ApplicationInsights.dll'
 
 # Script files (.ps1) that are run in the caller's environment prior to importing this module.
 # ScriptsToProcess = @()
