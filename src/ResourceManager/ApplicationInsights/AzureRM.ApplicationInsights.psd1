@@ -82,7 +82,8 @@ CmdletsToExport = 'Get-AzureRmApplicationInsights', 'New-AzureRmApplicationInsig
                'Remove-AzureRmApplicationInsightsContinuousExport', 
                'Get-AzureRmApplicationInsightsApiKey', 
                'New-AzureRmApplicationInsightsApiKey', 
-               'Remove-AzureRmApplicationInsightsApiKey'
+               'Remove-AzureRmApplicationInsightsApiKey',
+               'Invoke-AzureRmApplicationInsightsQuery'
 
 # Variables to export from this module
 # VariablesToExport = @()
