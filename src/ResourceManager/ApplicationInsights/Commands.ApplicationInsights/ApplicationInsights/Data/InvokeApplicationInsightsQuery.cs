@@ -12,7 +12,7 @@ namespace Microsoft.Azure.Commands.ApplicationInsights.ApplicationInsights.Data
 {
     [Cmdlet("Invoke", "AzureRmApplicationInsightsQuery", DefaultParameterSetName = ParamSetNameByApplicationId),
         OutputType(typeof(PSQueryResponse))]
-    public class InvokeApplicationInsightsQuery : ResourceManager.Common.AzureRMCmdlet
+    public class InvokeApplicationInsightsQuery : ResourceManager.Common.AzureRmLongRunningCmdlet
     {
         private const string ParamSetNameByApplicationId= "ByApplicationId";
         private const string ParamSetNameByApplicationObject = "ByApplicationObject";
@@ -89,7 +89,7 @@ namespace Microsoft.Azure.Commands.ApplicationInsights.ApplicationInsights.Data
             }
         }
 
-        protected override void ProcessRecord()
+        public override void ExecuteCmdlet()
         {
             if (ParameterSetName == ParamSetNameByApplicationId)
             {

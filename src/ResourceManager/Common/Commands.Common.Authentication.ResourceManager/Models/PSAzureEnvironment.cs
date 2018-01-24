@@ -109,9 +109,10 @@ namespace Microsoft.Azure.Commands.Profile.Models
             TrafficManagerDnsSuffix = other.GetProperty<string>(nameof(TrafficManagerDnsSuffix));
             AzureOperationalInsightsEndpointResourceId =
                 other.GetProperty<string>(nameof(AzureOperationalInsightsEndpointResourceId));
+            AzureOperationalInsightsEndpoint = other.GetProperty<string>(nameof(AzureOperationalInsightsEndpoint));
             AzureApplicationInsightsEndpointResourceId =
                 other.GetProperty<string>(nameof(AzureApplicationInsightsEndpointResourceId));
-            AzureOperationalInsightsEndpoint = other.GetProperty<string>(nameof(AzureOperationalInsightsEndpoint));
+            AzureApplicationInsightsEndpoint = other.GetProperty<string>(nameof(AzureApplicationInsightsEndpoint));
             VersionProfiles.Populate(nameof(VersionProfiles), other);
             this.PopulateExtensions(other);
         }

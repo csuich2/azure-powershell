@@ -75,6 +75,7 @@
     <Compile Include="ApplicationInsights\SetApplicationInsightsContinuousExport.cs" />
     <Compile Include="ApplicationInsights\NewApplicationInsights.cs" />
     <Compile Include="Helper\Utilities.cs" />
+    <Compile Include="Models\Data\PSQueryResponse.cs" />
     <Compile Include="Models\PSApplicationInsightsComponent.cs" />
     <Compile Include="Models\PSApiKey.cs" />
     <Compile Include="Models\PSDailyCapStatus.cs" />
